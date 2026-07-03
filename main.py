@@ -1,47 +1,14 @@
 import sqlite3
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from database import veritabani_hazirla
+from models import Urun, Kategori
+from fastapi import FastAPI, HTTPException, Depends
+from auth import router as auth_router, token_dogrula
 
 app = FastAPI()
 
+veritabani_hazirla()
 
-
-class Urun(BaseModel):
-    ad: str 
-    fiyat: float
-    stok: int
-    kategori_adi: str
-
-class Kategori(BaseModel):
-    ad: str    
-    
-
-
-def veritabani_hazirla():
-    baglanti = sqlite3.connect("envanter.db")
-    imlec = baglanti.cursor()
-
-    imlec.execute("""
-        CREATE TABLE IF NOT EXISTS urunler(
-            id INTEGER PRIMARY KEY,
-            ad TEXT,
-            fiyat REAL,
-            stok INTEGER,
-            kategori_id INTEGER
-        )
-    """)
-
-    imlec.execute("""
-        CREATE TABLE IF NOT EXISTS kategoriler(
-            id INTEGER PRIMARY KEY,
-            ad TEXT UNIQUE
-        )
-    """)
-
-    baglanti.commit()
-    baglanti.close()
-
-veritabani_hazirla()   
+app.include_router(auth_router)
 
 @app.get("/")
 def ana_sayfa():
@@ -139,7 +106,7 @@ def kategori_raporu():
     return kategori_raporu   
 
 @app.post("/urunler")
-def urun_ekle(urun: Urun):
+def urun_ekle(urun: Urun, kullanici_adi: str = Depends(token_dogrula)):
     baglanti = sqlite3.connect("envanter.db")
     imlec = baglanti.cursor()
     
@@ -174,7 +141,7 @@ def urun_ekle(urun: Urun):
     return {"mesaj": mesaj}
 
 @app.delete("/urunler/{urun_id}")
-def urun_sil(urun_id: int):
+def urun_sil(urun_id: int, kullanici_adi: str = Depends(token_dogrula)):
     baglanti = sqlite3.connect("envanter.db")
     imlec = baglanti.cursor()
     imlec.execute("SELECT id FROM urunler WHERE id = ?", (urun_id,))
@@ -190,7 +157,7 @@ def urun_sil(urun_id: int):
     return {"mesaj": f"{urun_id} numaralı ürün silindi!"}
 
 @app.put("/urunler/{urun_id}")
-def urun_guncelle(urun_id: int, urun: Urun):
+def urun_guncelle(urun_id: int, urun: Urun, kullanici_adi: str = Depends(token_dogrula)):
     baglanti = sqlite3.connect("envanter.db")
     imlec = baglanti.cursor()
 
@@ -219,7 +186,7 @@ def urun_guncelle(urun_id: int, urun: Urun):
 
 
 @app.post("/kategoriler")
-def kategori_ekle(kategori: Kategori):
+def kategori_ekle(kategori: Kategori, kullanici_adi: str = Depends(token_dogrula)):
     baglanti = sqlite3.connect("envanter.db")
     imlec = baglanti.cursor()
     
@@ -239,7 +206,7 @@ def kategori_ekle(kategori: Kategori):
     return {"mesaj": mesaj}
 
 @app.delete("/kategoriler/{kategori_id}")
-def kategori_sil(kategori_id: int):
+def kategori_sil(kategori_id: int, kullanici_adi: str = Depends(token_dogrula)):
     baglanti = sqlite3.connect("envanter.db")
     imlec = baglanti.cursor()
     
@@ -261,6 +228,3 @@ def kategori_sil(kategori_id: int):
     baglanti.close()
     return {"mesaj": f"{kategori_id} numaralı kategori silindi!"}    
     
-
-
-
