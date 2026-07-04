@@ -1,4 +1,5 @@
 envanter.db
 envanter.db-journal
+test_envanter.db
 __pycache__/
 .env

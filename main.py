@@ -1,4 +1,4 @@
-import sqlite3
+from database import veritabani_hazirla, veritabani_baglan
 from database import veritabani_hazirla
 from models import Urun, Kategori
 from fastapi import FastAPI, HTTPException, Depends
@@ -16,7 +16,7 @@ def ana_sayfa():
 
 @app.get("/urunler")
 def urunleri_getir():
-    baglanti = sqlite3.connect("envanter.db")
+    baglanti = veritabani_baglan()
     imlec = baglanti.cursor()
     imlec.execute("""
     SELECT urunler.id, urunler.ad, urunler.fiyat, urunler.stok, kategoriler.ad
@@ -40,7 +40,7 @@ def urunleri_getir():
 
 @app.get("/urunler/{urun_id}")
 def urun_getir(urun_id: int):
-    baglanti = sqlite3.connect("envanter.db")
+    baglanti = veritabani_baglan()
     imlec = baglanti.cursor()
     imlec.execute("""SELECT urunler.id, urunler.ad, urunler.fiyat, urunler.stok, kategoriler.ad 
     FROM urunler 
@@ -63,7 +63,7 @@ def urun_getir(urun_id: int):
 
 @app.get("/kategoriler")
 def kategori_listele():
-    baglanti = sqlite3.connect("envanter.db")
+    baglanti = veritabani_baglan()
     imlec = baglanti.cursor()
 
     imlec.execute("SELECT id, ad FROM kategoriler")
@@ -81,7 +81,7 @@ def kategori_listele():
 
 @app.get("/kategori-raporu")
 def kategori_raporu():
-    baglanti = sqlite3.connect("envanter.db")
+    baglanti = veritabani_baglan()
     imlec = baglanti.cursor()
 
     imlec.execute("""
@@ -107,7 +107,7 @@ def kategori_raporu():
 
 @app.post("/urunler")
 def urun_ekle(urun: Urun, kullanici_adi: str = Depends(token_dogrula)):
-    baglanti = sqlite3.connect("envanter.db")
+    baglanti = veritabani_baglan()
     imlec = baglanti.cursor()
     
     imlec.execute("SELECT stok FROM urunler WHERE ad = ? AND fiyat = ?", (urun.ad, urun.fiyat))
@@ -142,7 +142,7 @@ def urun_ekle(urun: Urun, kullanici_adi: str = Depends(token_dogrula)):
 
 @app.delete("/urunler/{urun_id}")
 def urun_sil(urun_id: int, kullanici_adi: str = Depends(token_dogrula)):
-    baglanti = sqlite3.connect("envanter.db")
+    baglanti = veritabani_baglan()
     imlec = baglanti.cursor()
     imlec.execute("SELECT id FROM urunler WHERE id = ?", (urun_id,))
     sonuc = imlec.fetchone()
@@ -158,7 +158,7 @@ def urun_sil(urun_id: int, kullanici_adi: str = Depends(token_dogrula)):
 
 @app.put("/urunler/{urun_id}")
 def urun_guncelle(urun_id: int, urun: Urun, kullanici_adi: str = Depends(token_dogrula)):
-    baglanti = sqlite3.connect("envanter.db")
+    baglanti = veritabani_baglan()
     imlec = baglanti.cursor()
 
     imlec.execute("SELECT id FROM urunler WHERE id = ?", (urun_id,))
@@ -187,7 +187,7 @@ def urun_guncelle(urun_id: int, urun: Urun, kullanici_adi: str = Depends(token_d
 
 @app.post("/kategoriler")
 def kategori_ekle(kategori: Kategori, kullanici_adi: str = Depends(token_dogrula)):
-    baglanti = sqlite3.connect("envanter.db")
+    baglanti = veritabani_baglan()
     imlec = baglanti.cursor()
     
     imlec.execute("SELECT id FROM kategoriler WHERE ad = ?", (kategori.ad,))
@@ -207,7 +207,7 @@ def kategori_ekle(kategori: Kategori, kullanici_adi: str = Depends(token_dogrula
 
 @app.delete("/kategoriler/{kategori_id}")
 def kategori_sil(kategori_id: int, kullanici_adi: str = Depends(token_dogrula)):
-    baglanti = sqlite3.connect("envanter.db")
+    baglanti = veritabani_baglan()
     imlec = baglanti.cursor()
     
     
