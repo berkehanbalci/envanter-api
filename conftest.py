@@ -6,9 +6,14 @@ from fastapi.testclient import TestClient
 from main import app
 from database import veritabani_hazirla
 
+@pytest.fixture(scope="session", autouse=True)
+def temiz_veritabani():
+    if os.path.exists("test_envanter.db"):
+        os.remove("test_envanter.db")
+    veritabani_hazirla()
+
 @pytest.fixture
 def client():
-    veritabani_hazirla()
     return TestClient(app)
 
 @pytest.fixture
