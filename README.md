@@ -30,18 +30,20 @@ FastAPI ile yazılmış, ürünleri ve kategorileri yöneten bir REST API. Ürü
 
 ```
 envanter-api/
-├── main.py       # FastAPI uygulaması ve ürün/kategori endpoint'leri
-├── models.py     # Pydantic veri modelleri (Urun, Kategori, Kullanici)
-├── database.py   # Veritabanı bağlantısı ve tablo tanımları
-├── auth.py       # Kayıt, giriş, JWT üretimi ve doğrulama
-├── .env          # Gizli anahtar (deposuna dahil değildir)
+├── main.py          # FastAPI uygulaması ve ürün/kategori endpoint'leri
+├── models.py        # Pydantic veri modelleri (Urun, Kategori, Kullanici)
+├── database.py      # Veritabanı bağlantısı ve tablo tanımları
+├── auth.py          # Kayıt, giriş, JWT üretimi ve doğrulama
+├── test_main.py     # API endpoint testleri (pytest)
+├── conftest.py       # Test fixture'ları (client, auth_token, temiz veritabanı)
+├── .env             # Gizli anahtar (deposuna dahil değildir)
 └── README.md
 ```
 
 ## Kurulum
 
 ```
-pip install fastapi uvicorn python-jose[cryptography] python-dotenv passlib bcrypt
+pip install fastapi uvicorn python-jose[cryptography] python-dotenv passlib bcrypt pytest httpx pytest-cov
 ```
 
 Proje klasöründe bir `.env` dosyası oluşturup içine bir gizli anahtar tanımlayın:
@@ -140,6 +142,30 @@ POST /urunler
   "kategori_adi": "gıda"
 }
 ```
+
+## Testler
+
+Proje, pytest ile yazılmış otomatik testler içerir. Testler, `test_envanter.db` adında ayrı ve izole bir veritabanında çalışır — gerçek `envanter.db`'ye hiç dokunmaz.
+
+Testleri çalıştırmak için:
+
+```
+pytest
+```
+
+Test kapsamını (coverage) görmek için:
+
+```
+pytest --cov=main --cov=auth --cov=database --cov=models
+```
+
+Kapsanan senaryolar:
+- Temel endpoint davranışı (200, 404)
+- Kimlik doğrulama gerektiren işlemler (token'sız 401, token'lı başarı)
+- Stok yönetimi (aynı ürün + aynı fiyat → stok artışı; farklı fiyat → ayrı kayıt)
+- İlişkisel bütünlük (içinde ürün olan kategori silinemez)
+- Güncelleme işleminin atomikliği (geçersiz kategoride hiçbir alan değişmez)
+- Silme işleminin doğrulanması
 
 ## Veri Modeli
 
