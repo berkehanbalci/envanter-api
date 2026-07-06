@@ -30,7 +30,7 @@ FastAPI ile yazılmış, ürünleri ve kategorileri yöneten bir REST API. Ürü
 
 ## Proje Yapısı
 
-​```
+```
 envanter-api/
 ├── main.py           # FastAPI uygulaması ve ürün/kategori endpoint'leri
 ├── models.py         # Pydantic veri modelleri (Urun, Kategori, Kullanici)
