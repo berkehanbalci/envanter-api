@@ -25,20 +25,25 @@ FastAPI ile yazılmış, ürünleri ve kategorileri yöneten bir REST API. Ürü
 - python-jose (JWT üretimi ve doğrulaması)
 - passlib + bcrypt (şifre hash'leme)
 - python-dotenv (gizli anahtar yönetimi)
+- pytest (otomatik testler)
+- Docker (paketleme ve dağıtım)
 
 ## Proje Yapısı
 
-```
+​```
 envanter-api/
-├── main.py          # FastAPI uygulaması ve ürün/kategori endpoint'leri
-├── models.py        # Pydantic veri modelleri (Urun, Kategori, Kullanici)
-├── database.py      # Veritabanı bağlantısı ve tablo tanımları
-├── auth.py          # Kayıt, giriş, JWT üretimi ve doğrulama
-├── test_main.py     # API endpoint testleri (pytest)
+├── main.py           # FastAPI uygulaması ve ürün/kategori endpoint'leri
+├── models.py         # Pydantic veri modelleri (Urun, Kategori, Kullanici)
+├── database.py       # Veritabanı bağlantısı ve tablo tanımları
+├── auth.py           # Kayıt, giriş, JWT üretimi ve doğrulama
+├── test_main.py      # API endpoint testleri (pytest)
 ├── conftest.py       # Test fixture'ları (client, auth_token, temiz veritabanı)
-├── .env             # Gizli anahtar (deposuna dahil değildir)
+├── requirements.txt  # Bağımlılık listesi
+├── Dockerfile        # Docker paketleme tanımı
+├── .dockerignore     # Docker imajına dahil edilmeyecek dosyalar
+├── .env              # Gizli anahtar (deposuna dahil değildir)
 └── README.md
-```
+​```
 
 ## Kurulum
 
@@ -65,6 +70,26 @@ Ardından tarayıcıdan http://127.0.0.1:8000 adresine gidin.
 İnteraktif dokümantasyon (Swagger) için: http://127.0.0.1:8000/docs
 
 Swagger üzerinden korumalı bir endpoint'i denemek için önce `/giris` ile bir token alın, sağ üstteki **Authorize** butonuna tıklayıp token'ı yapıştırın.
+
+## Docker ile Çalıştırma
+
+Proje Docker ile paketlenebilir ve çalıştırılabilir. Bu sayede Python veya bağımlılıkları elle kurmaya gerek kalmaz — yalnızca Docker kurulu olması yeterlidir.
+
+Önce image oluşturun:
+
+​```
+docker build -t envanter-api .
+​```
+
+Ardından container'ı çalıştırın:
+
+​```
+docker run -p 8000:8000 --env-file .env envanter-api
+​```
+
+`-p 8000:8000` container'ın portunu makinenizin portuna bağlar. `--env-file .env` gizli anahtarı container'a aktarır (gizli anahtar image'a gömülmez, çalışma anında verilir).
+
+Ardından yine http://127.0.0.1:8000 adresinden erişebilirsiniz.
 
 ## Endpoint'ler
 
